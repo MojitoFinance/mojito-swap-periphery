@@ -16,7 +16,7 @@ contract MojitoRouter is IMojitoRouter02, Ownable {
 
     address public immutable override factory;
     address public immutable override WETH;
-    address public swapMining;
+    address public override swapMining;
 
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, 'MojitoRouter: EXPIRED');

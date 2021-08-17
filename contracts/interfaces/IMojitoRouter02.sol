@@ -3,6 +3,8 @@ pragma solidity >=0.6.2;
 import './IMojitoRouter01.sol';
 
 interface IMojitoRouter02 is IMojitoRouter01 {
+    function swapMining() external pure returns (address);
+
     function removeLiquidityETHSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,
