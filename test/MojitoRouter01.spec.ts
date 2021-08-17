@@ -19,7 +19,7 @@ enum RouterVersion {
   MojitoRouter = 'MojitoRouter'
 }
 
-describe('MojitoRouter{01,02}', () => {
+describe('MojitoRouter{01,}', () => {
   for (const routerVersion of Object.keys(RouterVersion)) {
     const provider = new MockProvider({
       hardfork: 'istanbul',
@@ -368,8 +368,8 @@ describe('MojitoRouter{01,02}', () => {
           const receipt = await tx.wait()
           expect(receipt.gasUsed).to.eq(
             {
-              [RouterVersion.MojitoRouter01]: 101876,
-              [RouterVersion.MojitoRouter]: 101898
+              [RouterVersion.MojitoRouter01]: 106940,
+              [RouterVersion.MojitoRouter]: 106962
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
@@ -517,8 +517,8 @@ describe('MojitoRouter{01,02}', () => {
           const receipt = await tx.wait()
           expect(receipt.gasUsed).to.eq(
             {
-              [RouterVersion.MojitoRouter01]: 138770,
-              [RouterVersion.MojitoRouter]: 138770
+              [RouterVersion.MojitoRouter01]: 143888,
+              [RouterVersion.MojitoRouter]: 143888
             }[routerVersion as RouterVersion]
           )
         }).retries(3)

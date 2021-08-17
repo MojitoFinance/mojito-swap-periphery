@@ -262,12 +262,12 @@ contract MojitoRouter01 is IMojitoRouter01 {
         return MojitoLibrary.quote(amountA, reserveA, reserveB);
     }
 
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure override returns (uint amountOut) {
-        return MojitoLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, uint swapFeeNumerator) public pure override returns (uint amountOut) {
+        return MojitoLibrary.getAmountOut(amountIn, reserveIn, reserveOut, swapFeeNumerator);
     }
 
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) public pure override returns (uint amountIn) {
-        return MojitoLibrary.getAmountOut(amountOut, reserveIn, reserveOut);
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, uint swapFeeNumerator) public pure override returns (uint amountIn) {
+        return MojitoLibrary.getAmountOut(amountOut, reserveIn, reserveOut, swapFeeNumerator);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path) public view override returns (uint[] memory amounts) {

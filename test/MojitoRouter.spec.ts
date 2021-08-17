@@ -51,29 +51,33 @@ describe('MojitoRouter', () => {
   })
 
   it('getAmountOut', async () => {
-    expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(1))
-    await expect(router.getAmountOut(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_INPUT_AMOUNT'
+    expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100), bigNumberify(30))).to.eq(
+      bigNumberify(1)
     )
-    await expect(router.getAmountOut(bigNumberify(2), bigNumberify(0), bigNumberify(100))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_LIQUIDITY'
-    )
-    await expect(router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_LIQUIDITY'
-    )
+    await expect(
+      router.getAmountOut(bigNumberify(0), bigNumberify(100), bigNumberify(100), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_INPUT_AMOUNT')
+    await expect(
+      router.getAmountOut(bigNumberify(2), bigNumberify(0), bigNumberify(100), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_LIQUIDITY')
+    await expect(
+      router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(0), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_LIQUIDITY')
   })
 
   it('getAmountIn', async () => {
-    expect(await router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(2))
-    await expect(router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_OUTPUT_AMOUNT'
+    expect(await router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(100), bigNumberify(30))).to.eq(
+      bigNumberify(2)
     )
-    await expect(router.getAmountIn(bigNumberify(1), bigNumberify(0), bigNumberify(100))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_LIQUIDITY'
-    )
-    await expect(router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-      'MojitoLibrary: INSUFFICIENT_LIQUIDITY'
-    )
+    await expect(
+      router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_OUTPUT_AMOUNT')
+    await expect(
+      router.getAmountIn(bigNumberify(1), bigNumberify(0), bigNumberify(100), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_LIQUIDITY')
+    await expect(
+      router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(0), bigNumberify(30))
+    ).to.be.revertedWith('MojitoLibrary: INSUFFICIENT_LIQUIDITY')
   })
 
   it('getAmountsOut', async () => {

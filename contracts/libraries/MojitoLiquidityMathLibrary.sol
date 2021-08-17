@@ -49,6 +49,7 @@ library MojitoLiquidityMathLibrary {
     ) view internal returns (uint256 reserveA, uint256 reserveB) {
         // first get reserves before the swap
         (reserveA, reserveB) = MojitoLibrary.getReserves(factory, tokenA, tokenB);
+        uint swapFeeNumerator = MojitoLibrary.getSwapFeeNumerator(factory, tokenA, tokenB);
 
         require(reserveA > 0 && reserveB > 0, 'UniswapV2ArbitrageLibrary: ZERO_PAIR_RESERVES');
 
@@ -61,11 +62,11 @@ library MojitoLiquidityMathLibrary {
 
         // now affect the trade to the reserves
         if (aToB) {
-            uint amountOut = MojitoLibrary.getAmountOut(amountIn, reserveA, reserveB);
+            uint amountOut = MojitoLibrary.getAmountOut(amountIn, reserveA, reserveB, swapFeeNumerator);
             reserveA += amountIn;
             reserveB -= amountOut;
         } else {
-            uint amountOut = MojitoLibrary.getAmountOut(amountIn, reserveB, reserveA);
+            uint amountOut = MojitoLibrary.getAmountOut(amountIn, reserveB, reserveA, swapFeeNumerator);
             reserveB += amountIn;
             reserveA -= amountOut;
         }

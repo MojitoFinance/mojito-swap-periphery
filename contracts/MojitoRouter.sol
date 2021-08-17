@@ -327,9 +327,10 @@ contract MojitoRouter is IMojitoRouter02 {
             uint amountOutput;
             { // scope to avoid stack too deep errors
             (uint reserve0, uint reserve1,) = pair.getReserves();
+            uint swapFeeNumerator = pair.swapFeeNumerator();
             (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
             amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
-            amountOutput = MojitoLibrary.getAmountOut(amountInput, reserveInput, reserveOutput);
+            amountOutput = MojitoLibrary.getAmountOut(amountInput, reserveInput, reserveOutput, swapFeeNumerator);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
             address to = i < path.length - 2 ? MojitoLibrary.pairFor(factory, output, path[i + 2]) : _to;
@@ -404,24 +405,24 @@ contract MojitoRouter is IMojitoRouter02 {
         return MojitoLibrary.quote(amountA, reserveA, reserveB);
     }
 
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut)
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, uint swapFeeNumerator)
         public
         pure
         virtual
         override
         returns (uint amountOut)
     {
-        return MojitoLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+        return MojitoLibrary.getAmountOut(amountIn, reserveIn, reserveOut, swapFeeNumerator);
     }
 
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut)
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, uint swapFeeNumerator)
         public
         pure
         virtual
         override
         returns (uint amountIn)
     {
-        return MojitoLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
+        return MojitoLibrary.getAmountIn(amountOut, reserveIn, reserveOut, swapFeeNumerator);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path)

@@ -21,7 +21,7 @@ library MojitoLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'942df2d131a65c3706923dd301b434c350441163d07d828b93cd0d2a763a0112' // init code hash
+                hex'103ce5210bf08d99650768eb616bd8f82cdaeb107030669db63cbadb9b9abe64' // init code hash
             ))));
     }
 
@@ -32,6 +32,11 @@ library MojitoLibrary {
         (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
+    // fetches the swap fee numerator for a pair
+    function getSwapFeeNumerator(address factory, address tokenA, address tokenB) internal view returns (uint swapFeeNumerator) {
+        swapFeeNumerator = IMojitoPair(pairFor(factory, tokenA, tokenB)).swapFeeNumerator();
+    }
+
     // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
     function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
         require(amountA > 0, 'MojitoLibrary: INSUFFICIENT_AMOUNT');
@@ -40,21 +45,21 @@ library MojitoLibrary {
     }
 
     // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut, uint swapFeeNumerator) internal pure returns (uint amountOut) {
         require(amountIn > 0, 'MojitoLibrary: INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'MojitoLibrary: INSUFFICIENT_LIQUIDITY');
-        uint amountInWithFee = amountIn.mul(997);
+        uint amountInWithFee = amountIn.mul(10000 - swapFeeNumerator);
         uint numerator = amountInWithFee.mul(reserveOut);
-        uint denominator = reserveIn.mul(1000).add(amountInWithFee);
+        uint denominator = reserveIn.mul(10000).add(amountInWithFee);
         amountOut = numerator / denominator;
     }
 
     // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut, uint swapFeeNumerator) internal pure returns (uint amountIn) {
         require(amountOut > 0, 'MojitoLibrary: INSUFFICIENT_OUTPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'MojitoLibrary: INSUFFICIENT_LIQUIDITY');
-        uint numerator = reserveIn.mul(amountOut).mul(1000);
-        uint denominator = reserveOut.sub(amountOut).mul(997);
+        uint numerator = reserveIn.mul(amountOut).mul(10000);
+        uint denominator = reserveOut.sub(amountOut).mul(10000 - swapFeeNumerator);
         amountIn = (numerator / denominator).add(1);
     }
 
@@ -65,7 +70,8 @@ library MojitoLibrary {
         amounts[0] = amountIn;
         for (uint i; i < path.length - 1; i++) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+            uint swapFeeNumerator = getSwapFeeNumerator(factory, path[i], path[i + 1]);
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut, swapFeeNumerator);
         }
     }
 
@@ -76,7 +82,8 @@ library MojitoLibrary {
         amounts[amounts.length - 1] = amountOut;
         for (uint i = path.length - 1; i > 0; i--) {
             (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
-            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+            uint swapFeeNumerator = getSwapFeeNumerator(factory, path[i - 1], path[i]);
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut, swapFeeNumerator);
         }
     }
 }
