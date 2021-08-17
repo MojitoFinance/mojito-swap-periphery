@@ -369,7 +369,7 @@ describe('MojitoRouter{01,}', () => {
           expect(receipt.gasUsed).to.eq(
             {
               [RouterVersion.MojitoRouter01]: 106940,
-              [RouterVersion.MojitoRouter]: 106962
+              [RouterVersion.MojitoRouter]: 107803
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
@@ -518,7 +518,7 @@ describe('MojitoRouter{01,}', () => {
           expect(receipt.gasUsed).to.eq(
             {
               [RouterVersion.MojitoRouter01]: 143888,
-              [RouterVersion.MojitoRouter]: 143888
+              [RouterVersion.MojitoRouter]: 144686
             }[routerVersion as RouterVersion]
           )
         }).retries(3)

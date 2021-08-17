@@ -16,7 +16,8 @@
   ],
   "dependencies": {
     "@mojitoswap-libs/mojito-lib": "0.1.0",
-    "@mojitoswap-libs/mojito-swap-core": "0.1.1"
+    "@mojitoswap-libs/mojito-swap-core": "0.1.1",
+    "@openzeppelin/contracts": "3.4.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",

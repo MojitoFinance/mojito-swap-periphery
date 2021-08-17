@@ -1,5 +1,6 @@
 pragma solidity =0.6.6;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import '@mojitoswap-libs/mojito-swap-core/contracts/interfaces/IMojitoFactory.sol';
 import '@mojitoswap-libs/mojito-lib/contracts/libraries/TransferHelper.sol';
 
@@ -8,12 +9,14 @@ import './libraries/MojitoLibrary.sol';
 import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
+import './interfaces/ISwapMining.sol';
 
-contract MojitoRouter is IMojitoRouter02 {
+contract MojitoRouter is IMojitoRouter02, Ownable {
     using SafeMath for uint;
 
     address public immutable override factory;
     address public immutable override WETH;
+    address public swapMining;
 
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, 'MojitoRouter: EXPIRED');
@@ -23,6 +26,10 @@ contract MojitoRouter is IMojitoRouter02 {
     constructor(address _factory, address _WETH) public {
         factory = _factory;
         WETH = _WETH;
+    }
+
+    function setSwapMining(address _swapMininng) public onlyOwner {
+        swapMining = _swapMininng;
     }
 
     receive() external payable {
@@ -214,6 +221,9 @@ contract MojitoRouter is IMojitoRouter02 {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0,) = MojitoLibrary.sortTokens(input, output);
             uint amountOut = amounts[i + 1];
+            if (swapMining != address(0)) {
+                ISwapMining(swapMining).swap(msg.sender, input, output, amountOut);
+            }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
             address to = i < path.length - 2 ? MojitoLibrary.pairFor(factory, output, path[i + 2]) : _to;
             IMojitoPair(MojitoLibrary.pairFor(factory, input, output)).swap(
@@ -331,6 +341,9 @@ contract MojitoRouter is IMojitoRouter02 {
             (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
             amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
             amountOutput = MojitoLibrary.getAmountOut(amountInput, reserveInput, reserveOutput, swapFeeNumerator);
+            }
+            if (swapMining != address(0)) {
+                ISwapMining(swapMining).swap(msg.sender, input, output, amountOutput);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
             address to = i < path.length - 2 ? MojitoLibrary.pairFor(factory, output, path[i + 2]) : _to;
