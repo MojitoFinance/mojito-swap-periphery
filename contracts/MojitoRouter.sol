@@ -4,14 +4,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import '@mojitoswap-libs/mojito-swap-core/contracts/interfaces/IMojitoFactory.sol';
 import '@mojitoswap-libs/mojito-lib/contracts/libraries/TransferHelper.sol';
 
-import './interfaces/IMojitoRouter02.sol';
+import './interfaces/IMojitoRouter03.sol';
 import './libraries/MojitoLibrary.sol';
 import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import './interfaces/ISwapMining.sol';
 
-contract MojitoRouter is IMojitoRouter02, Ownable {
+contract MojitoRouter is IMojitoRouter03, Ownable {
     using SafeMath for uint;
 
     address public immutable override factory;
