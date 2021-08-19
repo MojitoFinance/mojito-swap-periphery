@@ -21,7 +21,7 @@ library MojitoLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'103ce5210bf08d99650768eb616bd8f82cdaeb107030669db63cbadb9b9abe64' // init code hash
+                hex'3b58864b0ea7cc084fc3a5dc3ca7ea2fb5cedd9aac7f9fff0c3dd9a15713f1c7' // init code hash
             ))));
     }
 
