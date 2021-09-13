@@ -18,7 +18,8 @@ library MojitoLiquidityMathLibrary {
         uint256 truePriceTokenA,
         uint256 truePriceTokenB,
         uint256 reserveA,
-        uint256 reserveB
+        uint256 reserveB,
+        uint256 swapFeeNumerator
     ) pure internal returns (bool aToB, uint256 amountIn) {
         aToB = FullMath.mulDiv(reserveA, truePriceTokenB, reserveB) < truePriceTokenA;
 
@@ -26,12 +27,12 @@ library MojitoLiquidityMathLibrary {
 
         uint256 leftSide = Babylonian.sqrt(
             FullMath.mulDiv(
-                invariant.mul(1000),
+                invariant.mul(10000),
                 aToB ? truePriceTokenA : truePriceTokenB,
-                (aToB ? truePriceTokenB : truePriceTokenA).mul(997)
+                (aToB ? truePriceTokenB : truePriceTokenA).mul(10000 - swapFeeNumerator)
             )
         );
-        uint256 rightSide = (aToB ? reserveA.mul(1000) : reserveB.mul(1000)) / 997;
+        uint256 rightSide = (aToB ? reserveA.mul(10000) : reserveB.mul(10000)) / (10000 - swapFeeNumerator);
 
         if (leftSide < rightSide) return (false, 0);
 
@@ -54,7 +55,7 @@ library MojitoLiquidityMathLibrary {
         require(reserveA > 0 && reserveB > 0, 'UniswapV2ArbitrageLibrary: ZERO_PAIR_RESERVES');
 
         // then compute how much to swap to arb to the true price
-        (bool aToB, uint256 amountIn) = computeProfitMaximizingTrade(truePriceTokenA, truePriceTokenB, reserveA, reserveB);
+        (bool aToB, uint256 amountIn) = computeProfitMaximizingTrade(truePriceTokenA, truePriceTokenB, reserveA, reserveB, swapFeeNumerator);
 
         if (amountIn == 0) {
             return (reserveA, reserveB);
@@ -79,15 +80,16 @@ library MojitoLiquidityMathLibrary {
         uint256 totalSupply,
         uint256 liquidityAmount,
         bool feeOn,
-        uint kLast
+        uint kLast,
+        uint feeToDenominator
     ) internal pure returns (uint256 tokenAAmount, uint256 tokenBAmount) {
         if (feeOn && kLast > 0) {
             uint rootK = Babylonian.sqrt(reservesA.mul(reservesB));
             uint rootKLast = Babylonian.sqrt(kLast);
             if (rootK > rootKLast) {
                 uint numerator1 = totalSupply;
-                uint numerator2 = rootK.sub(rootKLast);
-                uint denominator = rootK.mul(5).add(rootKLast);
+                uint numerator2 = rootK.sub(rootKLast).mul(2);
+                uint denominator = rootK.mul(feeToDenominator.sub(2)).add(rootKLast.mul(2));
                 uint feeLiquidity = FullMath.mulDiv(numerator1, numerator2, denominator);
                 totalSupply = totalSupply.add(feeLiquidity);
             }
@@ -109,7 +111,8 @@ library MojitoLiquidityMathLibrary {
         bool feeOn = IMojitoFactory(factory).feeTo() != address(0);
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = pair.totalSupply();
-        return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast);
+        uint feeToDenominator = pair.feeToDenominator();
+        return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast, feeToDenominator);
     }
 
     // given two tokens, tokenA and tokenB, and their "true price", i.e. the observed ratio of value of token A to token B,
@@ -129,12 +132,13 @@ library MojitoLiquidityMathLibrary {
         IMojitoPair pair = IMojitoPair(MojitoLibrary.pairFor(factory, tokenA, tokenB));
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = pair.totalSupply();
+        uint feeToDenominator = pair.feeToDenominator();
 
         // this also checks that totalSupply > 0
         require(totalSupply >= liquidityAmount && liquidityAmount > 0, 'ComputeLiquidityValue: LIQUIDITY_AMOUNT');
 
         (uint reservesA, uint reservesB) = getReservesAfterArbitrage(factory, tokenA, tokenB, truePriceTokenA, truePriceTokenB);
 
-        return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast);
+        return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast, feeToDenominator);
     }
 }
