@@ -43,9 +43,11 @@ contract ExampleSwapToPrice {
         uint256 amountIn;
         {
             (uint256 reserveA, uint256 reserveB) = MojitoLibrary.getReserves(factory, tokenA, tokenB);
+            uint256 swapFeeNumerator = MojitoLibrary.getSwapFeeNumerator(factory, tokenA, tokenB);
             (aToB, amountIn) = MojitoLiquidityMathLibrary.computeProfitMaximizingTrade(
                 truePriceTokenA, truePriceTokenB,
-                reserveA, reserveB
+                reserveA, reserveB,
+                swapFeeNumerator
             );
         }
 

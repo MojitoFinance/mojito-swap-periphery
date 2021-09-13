@@ -48,6 +48,7 @@ describe('ExampleComputeLiquidityValue', () => {
     await token0.transfer(pair.address, expandTo18Decimals(10))
     await token1.transfer(pair.address, expandTo18Decimals(1000))
     await pair.mint(wallet.address, overrides)
+    await factory.setFeeToDenominator(pair.address, 12)
     expect(await pair.totalSupply()).to.eq(expandTo18Decimals(100))
   })
 
@@ -193,8 +194,8 @@ describe('ExampleComputeLiquidityValue', () => {
       const [reserveA, reserveB] = await computeLiquidityValue.getReservesAfterArbitrage(
         token0.address,
         token1.address,
-        MaxUint256.div(1000),
-        MaxUint256.div(1000)
+        MaxUint256.div(10000),
+        MaxUint256.div(10000)
       )
       // diff of 30 bips
       expect(reserveA).to.eq('100120248075158403008')
@@ -249,7 +250,7 @@ describe('ExampleComputeLiquidityValue', () => {
             100,
             expandTo18Decimals(5)
           )
-        ).to.eq('16072')
+        ).to.eq('18741')
       })
 
       it('gas higher price', async () => {
@@ -261,7 +262,7 @@ describe('ExampleComputeLiquidityValue', () => {
             105,
             expandTo18Decimals(5)
           )
-        ).to.eq('16859')
+        ).to.eq('19528')
       })
 
       it('gas lower price', async () => {
@@ -273,7 +274,7 @@ describe('ExampleComputeLiquidityValue', () => {
             95,
             expandTo18Decimals(5)
           )
-        ).to.eq('16904')
+        ).to.eq('19573')
       })
 
       describe('after a swap', () => {
@@ -380,7 +381,7 @@ describe('ExampleComputeLiquidityValue', () => {
             100,
             expandTo18Decimals(5)
           )
-        ).to.eq('20327')
+        ).to.eq('22996')
       })
 
       it('gas higher price', async () => {
@@ -392,7 +393,7 @@ describe('ExampleComputeLiquidityValue', () => {
             105,
             expandTo18Decimals(5)
           )
-        ).to.eq('21878')
+        ).to.eq('24895')
       })
 
       it('gas lower price', async () => {
@@ -404,7 +405,7 @@ describe('ExampleComputeLiquidityValue', () => {
             95,
             expandTo18Decimals(5)
           )
-        ).to.eq('21809')
+        ).to.eq('24826')
       })
 
       describe('after a swap', () => {
